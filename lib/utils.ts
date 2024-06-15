@@ -195,6 +195,14 @@ export const getTransactionStatus = (date: Date) => {
   return date > twoDaysAgo ? "Processing" : "Success";
 };
 
+const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+
+// Regular expression for at least one special character, one capital letter, and one number
+const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])/;
+
+// Regular expression for only numeric characters
+const numericRegex = /^\d+$/;
+
 export const authFormSchema = (type: string) =>
   z.object({
     firstName: type === "sign-in" ? z.string().optional() : z.string().min(3),
@@ -205,8 +213,49 @@ export const authFormSchema = (type: string) =>
       type === "sign-in" ? z.string().optional() : z.string().min(2).max(2),
     postalCode:
       type === "sign-in" ? z.string().optional() : z.string().min(3).max(6),
-    dateOfBirth: type === "sign-in" ? z.string().optional() : z.string().min(3),
-    ssn: type === "sign-in" ? z.string().optional() : z.string().min(3),
+    dateOfBirth:
+      type === "sign-in"
+        ? z.string().optional()
+        : z
+            .string()
+            .regex(dateRegex, {
+              message: "Invalid date format, expected YYYY-MM-DD",
+            })
+            .refine(
+              (dateStr) => {
+                const [year, month, day] = dateStr.split("-").map(Number);
+                const date = new Date(dateStr);
+                console.log(
+                  date.getFullYear(),
+                  year,
+                  date.getMonth(),
+                  month,
+                  date.getDate(),
+                  day
+                );
+
+                return (
+                  date.getFullYear() === year &&
+                  date.getMonth() + 1 === month &&
+                  date.getDate() + 1 === day
+                );
+              },
+              {
+                message: "Invalid date",
+              }
+            ),
+    ssn:
+      type === "sign-in"
+        ? z.string().optional()
+        : z.string().min(4).max(4).regex(numericRegex, {
+            message: "The string must contain only numeric characters",
+          }),
     email: z.string().email(),
-    password: z.string().min(8),
+    password: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters long" })
+      .regex(passwordRegex, {
+        message:
+          "Password must contain at least one capital letter, one number, and one special character",
+      }),
   });
