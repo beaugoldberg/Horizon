@@ -37,21 +37,21 @@ const AuthForm = ({ type }: { type: string }) => {
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     setIsLoading(true);
 
-    const userData = {
-      firstName: data.firstName!,
-      lastName: data.lastName!,
-      email: data.email,
-      password: data.password,
-      address1: data.address1!,
-      city: data.city!,
-      state: data.state!,
-      postalCode: data.postalCode!,
-      dateOfBirth: data.dateOfBirth!,
-      ssn: data.ssn!,
-    };
-
     try {
       if (type === "sign-up") {
+        const userData = {
+          firstName: data.firstName!,
+          lastName: data.lastName!,
+          email: data.email,
+          password: data.password,
+          address1: data.address1!,
+          city: data.city!,
+          state: data.state!,
+          postalCode: data.postalCode!,
+          dateOfBirth: data.dateOfBirth!,
+          ssn: data.ssn!,
+        };
+
         const newUser = await signUp(userData);
         setUser(newUser);
       }
